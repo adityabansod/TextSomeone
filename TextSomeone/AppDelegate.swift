@@ -13,10 +13,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+
+        NSLog("launchOptions \(launchOptions)")
+        
+        application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: UIUserNotificationType.Sound|UIUserNotificationType.Alert|UIUserNotificationType.Badge, categories: nil))
+        
+        if let options = launchOptions {
+            if let notification = options[UIApplicationLaunchOptionsLocalNotificationKey] as? UILocalNotification {
+                NSLog("application launched because of a notification", notification)
+            }
+            if let location: AnyObject = options[UIApplicationLaunchOptionsLocationKey]  {
+                NSLog("application launched because of a location event")
+            }
+        }
         return true
+    }
+    
+    func application(application: UIApplication, didReceiveLocalNotification notification: UILocalNotification) {
+        // http://nshipster.com/launch-options/ seems like this is all we need
+        // as it's called regarless of the app being open or closed
+        
+        NSLog("application did recieve a local notif")
+        if let info = notification.userInfo as? [String:String] {
+            let phone = info["phone"] as String!
+            let message = info["message"] as String!
+            
+            let url = NSURL(string: "sms:\(phone)")
+            NSLog("opening URL sms:\(phone)")
+            UIApplication.sharedApplication().openURL(url!)
+        }
     }
 
     func applicationWillResignActive(application: UIApplication) {
@@ -40,7 +66,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
-
 }
 

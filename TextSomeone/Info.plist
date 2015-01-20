@@ -33,8 +33,10 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Let&apos;s you send messages when you leave a location.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Let&apos;s you send messages when you leave a location.</string>
 </dict>
 </plist>
