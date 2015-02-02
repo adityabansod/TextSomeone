@@ -16,10 +16,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var message: UITextField!
     @IBOutlet weak var phone: UITextField!
     @IBOutlet weak var enabled: UISwitch!
+    @IBOutlet weak var street: UITextField!
     
     var locationManager:CLLocationManager?
     var region:CLCircularRegion?
     let regionIdentifier = "AlertRegion"
+    
+    let geocodingUrl = "https://maps.googleapis.com/maps/api/geocode/json?key=YOURKEYHERE&latlng="
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,6 +56,25 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         if let phone = storedValues.valueForKey("phone") as? String {
             self.phone.text = phone
         }
+        reverseGeocodeLatLon(self.region!.center)
+    }
+    
+    func reverseGeocodeLatLon(coord: CLLocationCoordinate2D) {
+        let string = self.geocodingUrl + "\(coord.latitude),\(coord.longitude)"
+        let url = NSURL(string: string)
+        
+        var jsonError: NSError?
+        
+        
+        let task = NSURLSession.sharedSession().dataTaskWithURL(url!) {(data, response, error) in
+            if let results = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &jsonError) as? NSDictionary {
+                let streetname = ((results.valueForKey("results") as NSArray)[0] as NSDictionary)["formatted_address"] as NSString
+                self.street.text = streetname
+                
+            }
+        }
+        task.resume()
+    
     }
 
     override func didReceiveMemoryWarning() {
@@ -121,6 +143,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!) {
         let coordinate = (locations.last as CLLocation).coordinate
         self.location.text = formatCoordinate(coordinate)
+        reverseGeocodeLatLon(coordinate)
+
         locationManager?.stopUpdatingLocation()
         
         let region = CLCircularRegion(center: coordinate, radius: 50, identifier: self.regionIdentifier)
